@@ -5,7 +5,7 @@ This is my first attempt of creating my own operating system in x86 assembly.
 
 # BUILD
 System is compiled with nasm
-To build the system simply run 'make'
+To build the system simply run `make`
 
 ## Runing the system
 System was tested on qemu and and on real hardware
