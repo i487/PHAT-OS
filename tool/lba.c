@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define PROGRAM_VERSION "1.0.0(GCC debug build)"
+#define PROGRAM_VERSION "1.0.0"
 
 typedef struct
 {
@@ -32,7 +32,7 @@ void usage()
 
 int main(int argc, char *argv[])
 {
-    printf("LBA to CHS converter by Am286\nVersion: %s\n\n", PROGRAM_VERSION);
+    printf("LBA to CHS converter\nVersion: %s\n\n", PROGRAM_VERSION);
 
     if (argc > 4)
     {
