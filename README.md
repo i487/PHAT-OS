@@ -3,7 +3,7 @@ My own operating system written in x86 Asm
 
 This is my first attempt of creating my own operating system in x86 assembly.
 
-# BUILD
+## BUILD
 System is compiled with nasm
 To build the system simply run `make`
 
