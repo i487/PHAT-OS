@@ -1,0 +1,20 @@
+AH 00 Exit to system
+AH 01 Print to screen
+AH 02 Read keyboard until Return with echo
+AH 03 Read keyboard until Return without echo
+AH 04 Open file
+AH 05 Close file
+AH 06 Read Data from file
+AH 07 Seek File
+AH 08 Find file
+AH 09 Write Blocks to file
+AH 0A Create File
+AH 0B Create Directory
+AH 0C Remove Directory
+AH 0D Remove file
+AH 0E Get file size
+AH 0F Get file attributes.
+AH 10 Get system time
+AH 11 Set system time
+AH 12 Crash System
+AH 13 Exec
