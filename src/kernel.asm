@@ -1,5 +1,15 @@
-; Yep I'm gonna be working on the kernel soon, right after i finish FAT stuff in boot secotr can you belive that ?
-; 22 NOV 2023 
+;   This file is part of PHAT-OS.
+;
+;   PHAT-OS is free software: you can redistribute it and/or modify it under the terms of the 
+;    GNU General Public License as published by the Free Software Foundation, either version 3 
+;    of the License, or (at your option) any later version.
+;
+;    PHAT-OS is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+;    without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;    See the GNU General Public License for more details.
+
+;    You should have received a copy of the GNU General Public License along with PHAT-OS. 
+;    If not, see <https://www.gnu.org/licenses/>.  
 
 KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
