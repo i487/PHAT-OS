@@ -4,7 +4,8 @@ My own operating system written in x86 Asm
 This is my first attempt of creating my own operating system in x86 assembly.
 
 ## Build
-System is compiled with nasm
+Before compiling the system you can check the enviroment with `env_chck.sh`
+System is compiled with nasm.
 To build the system simply run `make`. This will generate floppy.img file which is a bootable floppy image.
 
 ## Runing the system
