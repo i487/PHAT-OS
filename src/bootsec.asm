@@ -46,7 +46,7 @@ EBR_SysId                   db "FAT 12"
         mov ds, ax
         mov ss, ax
 
-        mov [EBR_BootDrvNumber], dl
+        mov byte[EBR_BootDrvNumber], dl
         
         mov al, 0x03
         int 0x10
@@ -254,8 +254,8 @@ EBR_SysId                   db "FAT 12"
         cmp word[es:KERNEL_OFF], KERNEL_SIGNATURE
         jne CRIT_ERROR
 
+        mov dl, byte[EBR_BootDrvNumber]
         pop ds
-        mov dl, [EBR_BootDrvNumber]
         jmp KERNEL_SEG:KERNEL_OFF + 2
 
 KERNEL_LOAD_MSG             db "Loading kernel...", ENDL, 0

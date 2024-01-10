@@ -1,9 +1,29 @@
+#   This file is part of PHAT-OS.
+#
+#   PHAT-OS is free software: you can redistribute it and/or modify it under the terms of the 
+#    GNU General Public License as published by the Free Software Foundation, either version 3 
+#    of the License, or (at your option) any later version.
+#
+#    PHAT-OS is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+#    without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+#    See the GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License along with PHAT-OS. 
+#    If not, see <https://www.gnu.org/licenses/>. 
+
 BUILD_DIR=build
 SOURCE_DIR=src
 TOOL_DIR=tool
 TOOL_BUILD_DIR=build/tool
+
+DISK_IMAGE=floppy.img
+
 ASM=nasm
 CC=gcc
+QEMU=qemu-system-i386
+
+DEBUG_QEMU_ARGS=--monitor stdio -fda $(BUILD_DIR)/$(DISK_IMAGE)
+RUN_QEMU_ARGS=-fda $(BUILD_DIR)/$(DISK_IMAGE)
 
 .PHONY: all floppy boot kernel clean always test
 
@@ -35,6 +55,9 @@ always:
 
 clean:
 	rm -rf $(BUILD_DIR)/*
-test: floppy
-	qemu-system-i386 -monitor stdio -fda $(BUILD_DIR)/floppy.img
 
+run:
+	$(QEMU) $(RUN_QEMU_ARGS)
+
+debug: floppy
+	$(QEMU) $(DEBUG_QEMU_ARGS)

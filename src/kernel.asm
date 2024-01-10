@@ -1,6 +1,6 @@
-;   This file is part of PHAT-OS.
+;    This file is part of PHAT-OS.
 ;
-;   PHAT-OS is free software: you can redistribute it and/or modify it under the terms of the 
+;    PHAT-OS is free software: you can redistribute it and/or modify it under the terms of the 
 ;    GNU General Public License as published by the Free Software Foundation, either version 3 
 ;    of the License, or (at your option) any later version.
 ;
@@ -28,6 +28,8 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
     FS_ERROR_MSG                db "Filesystem does not appear to be valid", ENDL, RETC, 0
     ABORT_RETRY_MSG             db "Abort? Retry? A/R", ENDL, RETC, 0
     KERNEL_LOOP_MSG             db "No program is loaded, enter program name or press Ctr Alt Del to reboot", ENDL, RETC, '://', 0
+    FILENAME_ERROR_MSG          db "Incorrect filename!", ENDL, RETC, 0
+    BOOT_ERROR_MSG              db "Unable to boot!", ENDL, RETC, "Press any key to reboot...", 0
 
     ; WARNING! None of the DISK or FS values are ment to be set directly use DISK_INIT and FS_INIT instead
     ; setting those values directly will almost certantly result in a crash
@@ -75,9 +77,10 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
     ; Buffers
     FS_DIR_ENTRY    times 32    db 0    ; Current Directory Entry
-    FS_FAT          times 9300  db 0    ; FAT
+    FS_FAT          times 9300  db 0    ; FAT(s)
     
     KBD_BUFFER      times 64    db 0    ; Keyboard buffer
+    GENERAL_BUFFER  times 64    db 0    ; Geeneral buffer
 
 [SECTION .text]
     KERNEL_START:
@@ -91,10 +94,21 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         call FREE_BOOTSECTOR
 
         call DISK_INIT
+        jc BOOT_ERROR
 
         call FS_INIT
+        jc BOOT_ERROR
 
         jmp KERNEL_LOOP
+        jmp BOOT_ERROR ; should never happen
+
+    BOOT_ERROR:
+        mov si, BOOT_ERROR_MSG
+        call PRINT
+        int 16h
+        db 0x0ea 
+        dw 0x0000 
+        dw 0xffff 
 
     KERNEL_LOOP:
         mov si, KERNEL_LOOP_MSG
@@ -108,6 +122,10 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         int 10h
         mov al, ENDL
         int 10h
+
+        mov si, KBD_BUFFER
+        ;mov di, FAT_FILENAME
+        call TO_FAT_FILENAME
 
         jmp KERNEL_LOOP
 
@@ -164,10 +182,8 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         popa
         ret
 
-    KBD_READ:   ; Reads keyboard input into buffer 
-        push ax
-        push bx
-        push cx
+    KBD_READ:   ; Reads keyboard input into buffer DS:SI outpur buffer
+        pusha
 
         mov cx, di
 
@@ -178,7 +194,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         je .done
         cmp ah, 0x0e
         je .backspace
-        mov byte[es:di], al
+        mov byte[ds:di], al
         cmp dh, 0
         jne .skip
         mov ah, 0x0e
@@ -192,20 +208,18 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         cmp di, cx
         je .loop
         dec di
-        mov byte[es:di], 0
+        mov byte[ds:di], 0
         cmp dh, 0
         jne .loop
         mov ah, 0x0e
         int 10h
         jmp .loop
 
-        .done
-        pop cx
-        pop bx
-        pop ax
+        .done:
+        popa
         ret
 
-    DISK_INIT:  ; Initialize disk parameters DL - drive number
+    DISK_INIT:  ; Initialize disk parameters DL - drive number CF set if error happends 
         pusha 
         push es
 
@@ -229,6 +243,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         mov byte[DISK_STATE], 0
         call DISK_READ_ERROR
         jc .done
+        stc
         mov byte[DISK_STATE], 1
 
         .done:
@@ -307,13 +322,11 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         .err:
         mov byte[FS_STATE], 0
         call FS_ERROR
-        jc .done
-        jmp .loop
+        jnc .loop 
 
         .done:
         popa
         ret
-
 
     READ_LBA:   ; Reads sector by it's LBA
         push cx ;CX - amount of sectors to read
@@ -356,7 +369,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         ret
 
     DISK_READ_ERROR:    ; Called when a disk error happends 
-        pusha
+        push si
         push ds
         mov ax, KERNEL_SEG
         mov ds, ax
@@ -369,12 +382,12 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
         .abort:
         pop ds
-        popa 
+        pop si
         ret
 
         .retry:
         pop ds
-        popa
+        pop si
         int 13h
         jc DISK_READ_ERROR
         ret
@@ -413,7 +426,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         popa
         ret
 
-    ABORT_RETRY:    ; Carry flag set if retry not set if abort
+    ABORT_RETRY:    ; Carry flag set if abort not set if retry
         pusha
         push ds
         mov ax, KERNEL_SEG
@@ -446,3 +459,116 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         popa
         ret
 
+    TO_FAT_FILENAME: ;DS:SI - string DS:DI - output buffer
+        push ax
+        push bx
+        push cx
+        push si
+        push di
+
+        xor cx, cx
+
+        .loop:
+        lodsb
+        cmp al, 0
+        je .done
+        cmp al, '.'
+        je .dot
+        mov [ds:di], al
+        inc di
+        inc cx
+        jmp .loop
+
+        .dot:
+        mov bx, 11
+        dec cx
+        sub bx, cx
+        sub bx, 3
+
+        .fill:
+        mov byte[ds:di], ' '
+        dec bx
+        cmp bx, 0
+        je .loop
+        inc di
+        jmp .fill
+
+        .done:
+        pop di 
+        mov si, di
+        push di
+        call TO_UPPER_CASE
+
+        pop di
+        pop si
+        pop cx
+        pop bx
+        pop ax
+        ret
+
+    TO_UPPER_CASE:  ; DS:SI - input string DS:DI - output buffer
+        push di
+        push si
+        push ax
+
+        .loop:
+        lodsb
+        inc di
+        cmp al, 0
+        je .done
+        cmp al, 0x7a
+        jge .loop
+        cmp al, 0x61
+        jge .convert
+        jmp .loop
+
+        .convert:
+        sub al, 32
+        mov byte[DS:DI], al
+        jmp .loop
+
+        .done:
+        pop ax
+        pop si
+        pop di
+        ret
+
+    CHECK_FILENAME: ; DS:SI - string to check CF set if error
+        push si
+        push ax
+        push cx
+        xor cx, cx
+
+        .loop:
+        lodsb
+        cmp cx, 11
+        jg .err
+        cmp al, 0x61
+        jl .err
+        cmp al, 0x7a
+        jg .err
+        cmp al, 0
+        je .done
+        inc cx
+
+        .err:
+        call FILENAME_ERROR
+        stc
+        
+        .done:
+        pop cx
+        pop ax
+        pop si
+        ret
+
+    FILENAME_ERROR: ; Filename error handler
+        push ds
+        push si
+
+        mov si, FILENAME_ERROR_MSG
+        call PRINT
+
+        pop si
+        pop ds
+        ret
+    
