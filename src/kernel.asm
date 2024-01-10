@@ -267,7 +267,8 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
         mov ax, word[BPB_HiddenSectors]    ; Calculating FAT values
         mov word[FS_FAT_START_SEC], ax
-        mov ax, [BPB_FatNum]
+        xor ah, ah
+        mov al, byte[BPB_FatNum]
         mov bx, [BPB_SecPerFat]
         mul bx
         mov byte[FS_FAT_SECTORS], al
@@ -308,6 +309,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
         mov ax, [FS_TOTAL_CLUSTERS]
         cmp ax, 4085                        ; Determination of FAT subtype
+        clc
         jle .FAT12
         mov byte[FS_TYPE], 1
         cmp ax, 65526
