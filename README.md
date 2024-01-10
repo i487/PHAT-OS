@@ -9,7 +9,7 @@ System is compiled with nasm.
 To build the system simply run `make`. This will generate floppy.img file which is a bootable floppy image.
 
 ## Runing the system
-To run the system you can simply boot from floppy.img using qemu or you can write this image to a media and run the system on real hardware
+To run the system you can simply boot from floppy.img using qemu or you can write this image to a media and run the system on real hardware. Makefile also provides `run` and `debug` targets which run the system automaticaly using `qemu-system-i386`
 
 
 
