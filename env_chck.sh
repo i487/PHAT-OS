@@ -27,29 +27,48 @@ elif [[ "$OSTYPE" == "win32" ]]; then
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
         echo -e "Running BSD\n"
 else
-        echo -e "\033[33mRunning on an unknown system, but it could work!\n"
+        echo -e "\e[33mRunning on an unknown system, but it could work!\n"
 fi
 
 
 #Check for nasm presense
 if ! nasm --version &> /dev/null
 then
-    echo -e "NASM could not be found!\n"
-    exit 1
+        echo -e "\e[31mNASM could not be found!\e[0m\n"
+        exit 1
+else
+        nasm --version | awk NR==1
+        echo -e "\e[32mOK!\e[0m\n"
 fi
 
 #Check for qemu-system-i386 presense 
-if ! kkqemu-system-i386 --version &> /dev/null
+if ! qemu-system-i386 --version &> /dev/null
 then
-    echo -e "qemu-sysytem-i386 could not be found!\n"
-    exit 1
+        echo -e "\e[31mqemu-sysytem-i386 could not be found!\e[0m\n"
+        exit 1echo -e "\e[33mOK!\n"
+else
+        qemu-system-i386 --version | awk NR==1
+        echo -e "\e[32mOK!\e[0m\n"
 fi
 
 #Check for make presense 
 if ! make --version &> /dev/null
 then
-    echo -e "Make could not be found!\n"
-    exit 1
+        echo -e "\e[31mMake could not be found!\e[0m\n"
+        exit 1
+else
+        make --version | awk NR==1
+        echo -e "\e[32mOK!\e[0m\n"
 fi
 
-echo -e "\033[32mAll good!\n"
+#Check for mtools presense
+if ! mtools --version &> /dev/null
+then
+        echo -e "\e[31mMtools could not be found!\e[0m\n"
+        exit 1
+else
+        mtools --version | awk NR==1
+        echo -e "\e[32mOK!\e[0m\n"
+fi
+
+echo -e "\e[1m\e[32mAll good! Ready to build the system!\e[0m\n"
