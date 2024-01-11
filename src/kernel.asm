@@ -509,7 +509,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         ret
 
     TO_UPPER_CASE:  ; DS:SI - input string DS:DI - output buffer
-        push di
+        push di     ; If lower case characters are encounterd 
         push si
         push ax
 
