@@ -567,6 +567,9 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         push ds
         push si
 
+        mov ax, KERNEL_SEG
+        mov ds, ax
+
         mov si, FILENAME_ERROR_MSG
         call PRINT
 
