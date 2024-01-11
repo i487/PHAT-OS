@@ -41,6 +41,16 @@ else
         echo -e "\e[32mOK!\e[0m\n"
 fi
 
+#Check for dosfstools presense
+if ! mkfs -t fat --version &> /dev/null
+then
+        echo -e "\e[31mDosfstools could not be found!\e[0m\n"
+        exit 1
+else
+        mkfs.fat --version | awk NR==1
+        echo -e "\e[32mOK!\e[0m\n"
+fi
+
 #Check for qemu-system-i386 presense 
 if ! qemu-system-i386 --version &> /dev/null
 then
@@ -69,16 +79,6 @@ then
         exit 1
 else
         mtools --version | awk NR==1
-        echo -e "\e[32mOK!\e[0m\n"
-fi
-
-#Check for mtools presense
-if ! mkfs.fat --version &> /dev/null
-then
-        echo -e "\e[31mDosfstools could not be found!\e[0m\n"
-        exit 1
-else
-        mkfs.fat --version | awk NR==1
         echo -e "\e[32mOK!\e[0m\n"
 fi
 
