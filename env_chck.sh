@@ -57,7 +57,7 @@ then
         qemu-system-i386 --version | awk NR==1
         echo -e "\e[32mOK!\e[0m\n"
 else
-        echo -e "\e[33mqemu-sysytem-i386 could not be found!\n"
+        echo -e "\e[33mqemu-system-i386 could not be found!\n"
         echo -e "qemu is optional, system will still build\nbut \e[1mrun \e[0m\e[33mand \e[1mdebug \e[0m\e[33m make targets won't work!"
 fi
 
