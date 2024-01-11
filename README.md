@@ -6,8 +6,8 @@ This is my first attempt of creating my own operating system in x86 assembly.
 ## Build
 
 ### Installing necesary packaes
-Building the system requiers following packages: `nasm`, `make`, `mtools`.
-However running the system also requires `qemu-system-i386`.
+Building the system requiers following packages: nasm, make, mtools.
+However running the system also requires qemu-system-i386.
 On Debian based distributions simply run `sudo apt install nasm mtools qemu`.
 On Arch or Manjaro run `sudo pacman -S nasm mtools qemu-full`
 
