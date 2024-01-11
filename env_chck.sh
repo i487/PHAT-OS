@@ -47,7 +47,7 @@ then
         echo -e "\e[31mDosfstools could not be found!\e[0m\n"
         exit 1
 else
-        echo "Dosfstools"
+        mkfs.fat --help 2> /dev/null | awk NR==1
         echo -e "\e[32mOK!\e[0m\n"
 fi
 
