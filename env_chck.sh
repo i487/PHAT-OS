@@ -72,4 +72,14 @@ else
         echo -e "\e[32mOK!\e[0m\n"
 fi
 
+#Check for mtools presense
+if ! mkfs.fat --version &> /dev/null
+then
+        echo -e "\e[31mDosfstools could not be found!\e[0m\n"
+        exit 1
+else
+        mkfs.fat --version | awk NR==1
+        echo -e "\e[32mOK!\e[0m\n"
+fi
+
 echo -e "\e[1m\e[32mAll good! Ready to build the system!\e[0m\n"
