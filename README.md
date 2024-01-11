@@ -13,7 +13,7 @@ On Arch or Manjaro run `sudo pacman -S nasm mtools qemu-full`
 
 ### Compiling
 Before compiling the system you can check the build enviroment with `env_chck.sh`
-To build the system simply run `make`. This will generate floppy.img file which is a bootable floppy image.
+To build the system simply run `make`. This will generate ***floppy.img*** file which is a bootable floppy image.
 
 ## Runing the system
 To run the system you can write ***floppy.img*** to a media and run the system on real or you can also use an emulator of your choise. You can also run the system with built in Makefile targets. To run the system in qemu run `make run`, if you want to be able to debug the system run `make debug`.
