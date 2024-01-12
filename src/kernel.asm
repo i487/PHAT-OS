@@ -79,6 +79,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
     FS_DIR_ENTRY    times 32    db 0    ; Current Directory Entry
     FS_FAT          times 9300  db 0    ; FAT(s)
     
+    CONVERT_BUFFER  times 32    db 0    ; Buffer used for converting strings
     KBD_BUFFER      times 64    db 0    ; Keyboard buffer
     GENERAL_BUFFER  times 64    db 0    ; Geeneral buffer
 
@@ -124,7 +125,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         int 10h
 
         mov si, KBD_BUFFER
-        mov di, FAT_FILENAME
+        mov di, GENERAL_BUFFER
         call TO_FAT_FILENAME
 
         jmp KERNEL_LOOP
@@ -469,11 +470,12 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         push di
 
         xor cx, cx
-
+        mov di, CONVERT_BUFFER
+        
         .loop:
         lodsb
         cmp al, 0
-        je .done
+        je .to_upper_case
         cmp al, '.'
         je .dot
         mov [ds:di], al
@@ -495,12 +497,11 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         inc di
         jmp .fill
 
-        .done:
-        pop di 
-        mov si, di
-        push di
+        .to_upper_case:
+        mov si, CONVERT_BUFFER
         call TO_UPPER_CASE
 
+        .done:
         pop di
         pop si
         pop cx
