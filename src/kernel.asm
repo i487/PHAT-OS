@@ -124,7 +124,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         int 10h
 
         mov si, KBD_BUFFER
-        ;mov di, FAT_FILENAME
+        mov di, FAT_FILENAME
         call TO_FAT_FILENAME
 
         jmp KERNEL_LOOP
@@ -552,6 +552,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         cmp al, 0
         je .done
         inc cx
+        jmp .loop
 
         .err:
         call FILENAME_ERROR
