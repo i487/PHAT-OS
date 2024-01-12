@@ -58,7 +58,7 @@ then
         echo -e "\e[32mOK!\e[0m\n"
 else
         echo -e "\e[33mqemu-system-i386 could not be found!\n"
-        echo -e "qemu is optional, system will still build\nbut \e[1mrun \e[0m\e[33mand \e[1mdebug \e[0m\e[33m make targets won't work!"
+        echo -e "qemu is optional, system will still build\nbut \e[1mrun \e[0m\e[33mand \e[1mdebug \e[0m\e[33m make targets won't work!\e[0m\n"
 fi
 
 #Check for make presense 
