@@ -195,6 +195,8 @@ EBR_SysId                   db "FAT 12"
         .found: ;Kernel root directory entry is in DI register
         mov ax, [di + 26]
         mov [KERNEL_CLUS], ax
+        mov ax, [di + 28]
+        mov word[KERNEL_SIZE], ax
 
         ret 
     
@@ -255,15 +257,17 @@ EBR_SysId                   db "FAT 12"
         jne CRIT_ERROR
 
         mov dl, byte[EBR_BootDrvNumber]
+        mov cx, [KERNEL_SIZE]
         pop ds
         jmp KERNEL_SEG:KERNEL_OFF + 2
 
-KERNEL_LOAD_MSG             db "Loading kernel...", ENDL, 0
-REBOOT_MSG                  db "Press any key to reboot...", ENDL, 0
+KERNEL_LOAD_MSG             db "Loading kernel!", ENDL, 0
+REBOOT_MSG                  db "Press any key to reboot", ENDL, 0
 ERROR_MSG                   db "Unable To Boot!", ENDL, 0
-KERNEL_NOT_FOUND_MSG        db "Kernel.bin Not Found!", ENDL, 0
+KERNEL_NOT_FOUND_MSG        db "Kernel Not Found!", ENDL, 0
 KERNEL_FILE                 db "KERNEL  BIN"
 KERNEL_CLUS                 dw 0
+KERNEL_SIZE                 dw 0
 
 RETC                        equ 0x0D
 ENDL                        equ 0x0A
