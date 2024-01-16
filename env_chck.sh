@@ -25,7 +25,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
 elif [[ "$OSTYPE" == "win32" ]]; then
         echo -e "Running Windows\n" #Not sure if this can happend 
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
-        echo -e "Running BSD\n"
+        echo -e "Running FreeBSD\n"
 else
         echo -e "\e[33mRunning on an unknown system, but it could work!\n"
 fi
