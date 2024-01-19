@@ -31,16 +31,24 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
     FILENAME_ERROR_MSG          db "Incorrect filename!", ENDL, RETC, 0
     BOOT_ERROR_MSG              db "Unable to boot!", ENDL, RETC, "Press any key to reboot...", 0
 
+    BOOT_DISK                   db 0
+    ; Memory manager variables
+    KERNEL_SIZE                 dw 0
+    MEM_TOT_HIGH                dw 0
+    MEM_TOT_LOW                 dw 0
+    MEM_FREE_HIGH               dw 0
+    MEM_FREE_LOW                dw 0
+
     ; WARNING! None of the DISK or FS values are ment to be set directly use DISK_INIT and FS_INIT instead
     ; setting those values directly will almost certantly result in a crash
 
-    ; Disk values 
+    ; Disk values (TO BE REMOVED) 
     DISK_STATE                  db 0    ;Current disk state 0 - non initialized 1 - initialized         
     DISK_HEADS                  db 0    ;Current disk heads amount  
     DISK_SEC_PER_TRACK          dw 0    ;Current disk sectors per track                        
     DISK_NUM                    db 0    ;Current disk number                                          
 
-    ; Filesystem values
+    ; Filesystem values (TO BE REMOVED)
     FS_STATE                    db 0    ; State of the file system 0 - non initialized 1 - initialized
     FS_TYPE                     db 0    ; FAT Type 0 - FAT12 1 - FAT16 
     FS_FAT_SECTORS              db 0    ; Number of sectors occupied by FAT
@@ -51,7 +59,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
     FS_DATA_SECTORS             dw 0    ; Number of sectors ocupied by data region
     FS_TOTAL_CLUSTERS           dw 0    ; Total amount of clusters in the filesystem
 
-    ; Filesystem bootsector
+    ; Filesystem bootsector (To BE REMOVED)
     FS_BOOTSECTOR:
     BS_JmpBoot      times 3     db 0
 
@@ -75,7 +83,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
     EBR_VolumeLbl               db 0
     EBR_SysId                   db 0               
 
-    ; Buffers
+    ;  Buffers (TO BE REMOVED)
     FS_DIR_ENTRY    times 32    db 0    ; Current Directory Entry
     FS_FAT          times 9300  db 0    ; FAT(s)
     
@@ -92,7 +100,16 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         mov si, KERNEL_START_MSG
         call PRINT
 
+        mov byte[BOOT_DISK], dl
+
+        mov [KERNEL_SIZE], cx
         call FREE_BOOTSECTOR
+
+        call MEM_DETECT
+        mov dx, [MEM_FREE_HIGH]
+        call PRINT_HEX
+        mov dx, [MEM_FREE_LOW]
+        call PRINT_HEX
 
         call DISK_INIT
         jc BOOT_ERROR
@@ -129,6 +146,27 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         call TO_FAT_FILENAME
 
         jmp KERNEL_LOOP
+
+    MEM_DETECT: ;
+        push ax
+        push bx
+        push dx
+
+        clc 
+        int 12h
+        ;mov [MEM_TOT], ax
+        mov bx, 1024
+        mul bx
+        mov [MEM_TOT_HIGH], dx
+        mov [MEM_TOT_LOW], ax
+        sub ax, [KERNEL_SIZE]
+        mov [MEM_FREE_LOW], ax
+        mov [MEM_FREE_HIGH], dx
+
+        pop dx
+        pop bx
+        pop ax
+        ret
 
     PRINT:
         pusha
@@ -471,7 +509,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
         xor cx, cx
         mov di, CONVERT_BUFFER
-        
+
         .loop:
         lodsb
         cmp al, 0
