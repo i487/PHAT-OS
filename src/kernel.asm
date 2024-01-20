@@ -106,10 +106,6 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         call FREE_BOOTSECTOR
 
         call MEM_DETECT
-        mov dx, [MEM_FREE_HIGH]
-        call PRINT_HEX
-        mov dx, [MEM_FREE_LOW]
-        call PRINT_HEX
 
         call DISK_INIT
         jc BOOT_ERROR
@@ -198,10 +194,10 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         add bx, cx
         cmp ax, 0xA
         jl .set_letter
-        add byte [bx], 7
-
+        add byte [ds:bx], 7
+        
         .set_letter:
-        add byte [bx], al
+        add byte [ds:bx], al
         cmp cx, 0
         je .done
         jmp .loop
@@ -213,9 +209,9 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         add bx, 2
 
         .reset_leter:
-        mov byte[bx], 0x30
+        mov byte[ds:bx], 0x30
         inc bx
-        cmp byte[bx], 0
+        cmp byte[ds:bx], ENDL
         jne .reset_leter
 
         popa
