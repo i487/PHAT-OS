@@ -27,4 +27,4 @@ To run the system you can write ***floppy.img*** to a media and run the system o
 
 
 
-P.S. Keep in mind I'm 15 years old...
+
