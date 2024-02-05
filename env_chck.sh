@@ -81,4 +81,14 @@ else
         echo -e "\e[32mOK!\e[0m\n"
 fi
 
+#Check for gcc presense
+if gcc --version &> /dev/null
+then
+        gcc --version | awk NR==1
+        echo -e "\e[32mOK!\e[0m\n"
+else
+        echo -e "\e[33mGCC could not be found!\n"
+        echo -e "GCC is optional, system will still build\nbut \e[1mtools \e[0m\e[33mwon't!\e[0m\n"
+fi
+
 echo -e "\e[1m\e[32mAll good! Ready to build the system!\e[0m\n"
