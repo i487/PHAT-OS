@@ -33,11 +33,16 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
     BOOT_DISK                   db 0
     ; Memory manager variables
-    KERNEL_SIZE                 dw 0
-    MEM_TOT_HIGH                dw 0
-    MEM_TOT_LOW                 dw 0
-    MEM_FREE_HIGH               dw 0
-    MEM_FREE_LOW                dw 0
+    KERNEL_SIZE                 dw 0    ; Kernel size in bytes
+    MEM_TOT_HIGH                dw 0    ; Total memory amount in bytes high 16 bits
+    MEM_TOT_LOW                 dw 0    ; Total memory amount in bytes low 16 bits
+    MEM_FREE_HIGH               dw 0    ; Free memory amount in bytes high 16 bits
+    MEM_FREE_LOW                dw 0    ; Free memory amount in bytes low 16 bits
+
+    ; Just like in msdos memory is allocated in 16 byte paragraphs.
+    MCB_TEMPLATE:
+    MCB_PARAGRAPHS              dw 0
+    
 
     ; WARNING! None of the DISK or FS values are ment to be set directly use DISK_INIT and FS_INIT instead
     ; setting those values directly will almost certantly result in a crash
@@ -150,19 +155,18 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
         clc 
         int 12h
-        ;mov [MEM_TOT], ax
         mov bx, 1024
         mul bx
         mov [MEM_TOT_HIGH], dx
         mov [MEM_TOT_LOW], ax
-        sub ax, [KERNEL_SIZE]
-        mov [MEM_FREE_LOW], ax
-        mov [MEM_FREE_HIGH], dx
 
         pop dx
         pop bx
         pop ax
         ret
+
+    MEM_ALLOC:
+        
 
     PRINT:
         pusha
