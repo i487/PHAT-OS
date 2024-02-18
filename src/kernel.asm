@@ -136,8 +136,6 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         call FS_INIT
         jc BOOT_ERROR
 
-        mov dx, 1078
-        mov al, 1
         call PRINT_NUM
 
         jmp KERNEL_LOOP
@@ -267,39 +265,45 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         push cx
         push dx
         push ax
+
         mov ax, dx
+        xor cx, cx
+        cmp ax, 0
+        je .done
 
         .loop:
         cmp ax, 0
-        je .done
+        je .print
         mov bx, 10
         xor dx, dx
         div bx
         add dl, 48
+        cmp dl, 48
+        jl .loop
         push dx
+        inc cx
         jmp .loop
 
-        .done:
-        mov cx, 4
-
         .print:
+        dec cx
         pop ax
         mov ah, 0x0e
         int 10h
-        dec cx
         cmp cx, 0
         jne .print
 
         pop ax
+        push ax
         cmp al, 0
-        je .exit
+        je .done
         mov ah, 0x0e
         mov al, ENDL
         int 10h
         mov al, RETC
         int 10h
 
-        .exit
+        .done
+        pop ax
         pop dx
         pop cx
         pop bx
