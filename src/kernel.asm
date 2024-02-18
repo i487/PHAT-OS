@@ -15,6 +15,19 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
 [bits 16]
 [SECTION .data]
+
+%ifdef LOGO_ENABLE
+    LOGO                        db ENDL, RETC, " /$$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$        /$$$$$$   /$$$$$$", ENDL, RETC
+                                db             "| $$__  $$| $$  | $$ /$$__  $$|__  $$__/       /$$__  $$ /$$__  $$", ENDL, RETC
+                                db             "| $$  \ $$| $$  | $$| $$  \ $$   | $$         | $$  \ $$| $$  \__/", ENDL, RETC
+                                db             "| $$$$$$$/| $$$$$$$$| $$$$$$$$   | $$         | $$  | $$|  $$$$$$", ENDL, RETC
+                                db             "| $$____/ | $$__  $$| $$__  $$   | $$         | $$  | $$ \____  $$", ENDL, RETC
+                                db             "| $$      | $$  | $$| $$  | $$   | $$         | $$  | $$ /$$  \ $$", ENDL, RETC
+                                db             "| $$      | $$  | $$| $$  | $$   | $$         |  $$$$$$/|  $$$$$$/", ENDL, RETC
+                                db             "|__/      |__/  |__/|__/  |__/   |__/          \______/  \______/ ", ENDL, RETC
+                                db ENDL, RETC, 0
+%endif
+
     ; Constants
     KERNEL_SEG                  equ 0x100
     KENEL_OFF                   equ 0
@@ -22,7 +35,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
     RETC                        equ 0x0D
 
     ; Strings
-    HEX_OUT                     db "0x0000", ENDL, RETC, 0
+    HEX_OUT                     db "0x0000", 0
     KERNEL_START_MSG            db "Starting kernel!", ENDL, RETC, 0
     DISK_READ_ERR_MSG           db "Unable to read disk", ENDL, RETC, 0
     FS_ERROR_MSG                db "Filesystem does not appear to be valid", ENDL, RETC, 0
@@ -104,6 +117,11 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
         mov si, KERNEL_START_MSG
         call PRINT
+        
+        %ifdef LOGO_ENABLE
+        mov si, LOGO
+        call PRINT
+        %endif
 
         mov byte[BOOT_DISK], dl
 
@@ -117,6 +135,10 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
         call FS_INIT
         jc BOOT_ERROR
+
+        mov dx, 1078
+        mov al, 1
+        call PRINT_NUM
 
         jmp KERNEL_LOOP
         jmp BOOT_ERROR ; should never happen
@@ -183,8 +205,16 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         popa
         ret
 
-    PRINT_HEX:      ;Value to print - DX
-        pusha
+    PRINT_HEX:      ;Value to print - DX AL 1 - \n
+        push ds
+        push si
+        push dx
+        push cx
+        push bx
+        push ax
+
+        mov bx, KERNEL_SEG
+        mov ds, bx
         mov ah, 0x0e
         mov cx, 4
 
@@ -209,17 +239,71 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         .done:
         mov si, HEX_OUT
         call PRINT
-        mov bx, HEX_OUT
-        add bx, 2
+        add si, 2
+        pop ax
+        cmp al, 0
+        je .reset_leter
+        mov ah, 0x0e
+        mov al, ENDL
+        int 10h
+        mov al, RETC
+        int 10h
 
         .reset_leter:
-        mov byte[ds:bx], 0x30
-        inc bx
-        cmp byte[ds:bx], ENDL
+        mov byte[ds:si], 0x30
+        inc si
+        cmp byte[ds:si], 0
         jne .reset_leter
 
-        popa
+        pop bx
+        pop cx
+        pop dx
+        pop si
+        pop ds
         ret
+    
+    PRINT_NUM: ; DX - number to print AL 1 - \n
+        push bx
+        push cx
+        push dx
+        push ax
+        mov ax, dx
+
+        .loop:
+        cmp ax, 0
+        je .done
+        mov bx, 10
+        xor dx, dx
+        div bx
+        add dl, 48
+        push dx
+        jmp .loop
+
+        .done:
+        mov cx, 4
+
+        .print:
+        pop ax
+        mov ah, 0x0e
+        int 10h
+        dec cx
+        cmp cx, 0
+        jne .print
+
+        pop ax
+        cmp al, 0
+        je .exit
+        mov ah, 0x0e
+        mov al, ENDL
+        int 10h
+        mov al, RETC
+        int 10h
+
+        .exit
+        pop dx
+        pop cx
+        pop bx
+        ret 
 
     KBD_READ:   ; Reads keyboard input into buffer DS:SI outpur buffer
         pusha

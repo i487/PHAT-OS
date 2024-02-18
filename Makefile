@@ -24,6 +24,7 @@ QEMU=qemu-system-i386
 
 DEBUG_QEMU_ARGS=--monitor stdio -fda $(BUILD_DIR)/$(DISK_IMAGE)
 RUN_QEMU_ARGS=-fda $(BUILD_DIR)/$(DISK_IMAGE)
+ASM_FLAGS=-D LOGO_ENABLE
 
 .PHONY: all floppy boot kernel clean always test
 
@@ -40,7 +41,7 @@ $(BUILD_DIR)/boot.bin: always
 
 kernel: $(BUILD_DIR)/kernel.bin
 $(BUILD_DIR)/kernel.bin: always
-	$(ASM) -i $(SOURCE_DIR) $(SOURCE_DIR)/kernel.asm -f bin -o $(BUILD_DIR)/kernel.bin
+	$(ASM) $(ASM_FLAGS) -i $(SOURCE_DIR) $(SOURCE_DIR)/kernel.asm -f bin -o $(BUILD_DIR)/kernel.bin
 
 tool-lba: $(TOOL_BUILD_DIR)/lba
 $(TOOL_BUILD_DIR)/lba: always
