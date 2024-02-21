@@ -29,7 +29,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 %endif
 
     ; Constants
-    KERNEL_SEG                  equ 0x100
+    KERNEL_SEG                  equ 0x0100
     KENEL_OFF                   equ 0
     ENDL                        equ 0x0A
     RETC                        equ 0x0D
@@ -47,10 +47,8 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
     BOOT_DISK                   db 0
     ; Memory manager variables
     KERNEL_SIZE                 dw 0    ; Kernel size in bytes
-    MEM_TOT_HIGH                dw 0    ; Total memory amount in bytes high 16 bits
-    MEM_TOT_LOW                 dw 0    ; Total memory amount in bytes low 16 bits
-    MEM_FREE_HIGH               dw 0    ; Free memory amount in bytes high 16 bits
-    MEM_FREE_LOW                dw 0    ; Free memory amount in bytes low 16 bits
+    MEM_TOT                     dd 0    ; Total memory amount in bytes
+    MEM_FREE                    dd 0    ; Free memory amount in bytes
 
     ; Just like in msdos memory is allocated in 16 byte paragraphs.
     MCB_TEMPLATE:
@@ -134,9 +132,7 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         jc BOOT_ERROR
 
         call FS_INIT
-        jc BOOT_ERROR
-
-        call PRINT_NUM
+        jc BOOT_ERROR        
 
         jmp KERNEL_LOOP
         jmp BOOT_ERROR ; should never happen
@@ -168,6 +164,29 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
 
         jmp KERNEL_LOOP
 
+    INT_ADD: ;  AL - interrupt humber DX - handler segment  CX - handler offset
+        push es
+        push ax
+        push bx
+        push dx
+        cli
+
+        xor bx, bx
+        mov es, bx
+        mov bx, 4
+        mul bx
+        mov bx, ax
+        
+        pop dx
+        mov word[es:bx], cx
+        mov word[es:bx + 2], dx
+        
+        sti
+        pop bx
+        pop ax
+        pop es
+        ret
+
     MEM_DETECT: ;
         push ax
         push bx
@@ -177,8 +196,8 @@ KERNEL_SIGN                     dw 0xBADF ;Kernel signature
         int 12h
         mov bx, 1024
         mul bx
-        mov [MEM_TOT_HIGH], dx
-        mov [MEM_TOT_LOW], ax
+        mov [MEM_TOT], dx
+        mov [MEM_TOT+ 2], ax
 
         pop dx
         pop bx

@@ -45,7 +45,7 @@ $(BUILD_DIR)/kernel.bin: always
 
 tool-lba: $(TOOL_BUILD_DIR)/lba
 $(TOOL_BUILD_DIR)/lba: always
-	$(CC) -g -o0 $(TOOL_DIR)/lba.c -o $(TOOL_BUILD_DIR)/lba
+	$(CC) -g -o3 $(TOOL_DIR)/lba.c -o $(TOOL_BUILD_DIR)/lba
 
 tools-install:
 	cp $(TOOL_BUILD_DIR)/* /bin
